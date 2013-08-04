@@ -2,10 +2,10 @@
 
 //Start Configuration
 
-DEFINE('CLIENT_ID', '');
-DEFINE('API_KEY', '');
-DEFINE('DOMAIN', '');
-DEFINE('RECORD', '');
+DEFINE('CLIENT_ID', '');    //From Digital Ocean
+DEFINE('API_KEY', '');      //From Digital Ocean
+DEFINE('DOMAIN', '');       //e.g: joebloggs.co.uk
+DEFINE('RECORD', '');       //e.g: home
 DEFINE('CHECK_IP', "http://checkip.dyndns.org:8245");
 DEFINE('API_URL', "https://api.digitalocean.com");
 
