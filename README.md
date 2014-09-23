@@ -23,8 +23,9 @@ so that's what I did, enjoy!
 
 Usage:
 ------
-Simply enter your D.O. Client-ID and API-Key at the top of the script you want. Set the domain you want to update
-and the 'Record' for that domain and schedule the script to run however often you want (using for example the Windows Scheduler or a cron job).
+Simply enter your D.O. client credentials at the top of the script. Set the domain you want to update
+and the 'Record' for that domain and schedule the script to run however often you want (using for example the Windows
+Scheduler or a cron job).
 
 E.g:
 
@@ -32,4 +33,7 @@ My home server has a sticky IP, I want to be able to connect to it remotely usin
 
     home.joebloggs.com
 
-I'd create an 'A' record in D.O. with the hostname 'home', under the domain 'joebloggs.co.uk' and while I was there retrieve my API client ID and key.
+I'd create an 'A' record in DO with the hostname 'home', under the domain 'joebloggs.co.uk' and while I was there retrieve my API credentials.
+
+If your using the python or updater.php script you'll need a (client ID & key, v1 of the API). If however your using the v2 of the
+API (updater-v2.php and recommended) then you'll need to generate a ['Personal Access Token'](https://cloud.digitalocean.com/settings/applications).
