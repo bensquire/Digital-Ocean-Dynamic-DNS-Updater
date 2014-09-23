@@ -1,15 +1,13 @@
 <?php
-
 //Start Configuration
-
 DEFINE('CLIENT_ID', '');    //From Digital Ocean
 DEFINE('API_KEY', '');      //From Digital Ocean
 DEFINE('DOMAIN', '');       //e.g: joebloggs.co.uk
 DEFINE('RECORD', '');       //e.g: home
+//End Configuration
+
 DEFINE('CHECK_IP', "http://checkip.dyndns.org:8245");
 DEFINE('API_URL', "https://api.digitalocean.com");
-
-//End Configuration
 
 $apiCredentials = 'client_id=' . CLIENT_ID . '&api_key=' . API_KEY;
 
@@ -31,7 +29,6 @@ function getWebPage($url)
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
     $data = curl_exec($ch);
     curl_close($ch);
-
     return $data;
 }
 
@@ -120,7 +117,6 @@ function setRecordIP($record, $domain, $ipAddress, $apiCredentials)
     $url = API_URL . '/domains/' . $domain['id'] . '/records/' . $record['id'] . '/edit?' . $apiCredentials . '&data=' . $ipAddress;
     $json = getWebPage($url);
     $result = json_decode($json, true);
-
     return $result['status'] === 'OK';
 }
 
