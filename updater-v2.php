@@ -51,10 +51,10 @@ function getExternalIp()
  * @return bool
  * @throws Exception
  */
-function getRecord()
+function getRecord($page=null)
 {
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, API_URL . 'domains/' . DOMAIN . '/records');
+    curl_setopt($ch, CURLOPT_URL, API_URL . 'domains/' . DOMAIN . '/records'.($page != null ? '?page='.$page : ''));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, CURL_TIMEOUT);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -77,7 +77,17 @@ function getRecord()
             return $record;
         }
     }
-
+    
+    // Recursive call for pages results
+    if(isset($dataJson['links']['pages']['next']) && $dataJson['links']['pages']['next'] != '')
+    {
+	    $page = preg_match('/page=(?<page_number>\d+)/i', $dataJson['links']['pages']['next'], $match);
+	    if(isset($match['page_number']) && $match['page_number'] != '')
+	    {
+		    return getRecord($match['page_number']);
+	    }
+    }
+    
     return false;
 }
 
