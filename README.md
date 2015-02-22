@@ -35,5 +35,10 @@ My home server has a sticky IP, I want to be able to connect to it remotely usin
 
 I'd create an 'A' record in DO with the hostname 'home', under the domain 'joebloggs.co.uk' and while I was there retrieve my API credentials.
 
-If your using the python or updater.php script you'll need a (client ID & key, v1 of the API). If however your using the v2 of the
-API (updater-v2.php and recommended) then you'll need to generate a ['Personal Access Token'](https://cloud.digitalocean.com/settings/applications).
+If your using the updater.py or updater.php script you'll need a (client ID & key, v1 of the API). If however your using the v2 of the API use updater-v2.php/updater-v2.py (recommended) then you'll need to generate a ['Personal Access Token'](https://cloud.digitalocean.com/settings/applications).
+
+Thanks to:
+----------
+ - @surfer190 , for updatating the original PHP script to use HTTPS
+ - @nickwest , for updating the PHP v2 script to interpret paged results
+ - @gnoeley , for creating a V2 of the python script
