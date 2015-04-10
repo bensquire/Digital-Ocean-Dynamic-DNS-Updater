@@ -83,7 +83,8 @@ if __name__ == '__main__':
         domain = get_domain()
         record = get_record(domain)
         if record['data'] == ipaddr:
-            raise SystemExit("Record %s.%s already set to %s." % (record['name'], domain['name'], ipaddr))
-        set_record_ip(domain, record, ipaddr)
+            print ("Record %s.%s already set to %s." % (record['name'], domain['name'], ipaddr))
+        else:
+            set_record_ip(domain, record, ipaddr)
     except (Exception) as err:
         print ("Error: ", err)
