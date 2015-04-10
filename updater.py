@@ -3,8 +3,13 @@
 # Updated to work with Python 3
 
 import json, re
-import urllib.request
 from datetime import datetime
+
+# Support both v2 and v3 urllibs
+try:
+    from urllib.request import urlopen
+except ImportError, ex:
+    from urllib2 import urlopen
 
 CLIENTID = ''
 APIKEY = ''
@@ -20,7 +25,7 @@ def get_external_ip():
     """ Return the current external IP. """
     print ("Fetching external IP from:", CHECKIP)
 
-    fp = urllib.request.urlopen(CHECKIP)
+    fp = urlopen(CHECKIP)
     mybytes = fp.read()
     html = mybytes.decode("utf8")
 
@@ -32,7 +37,7 @@ def get_domain(name=DOMAIN):
     print ("Fetching Domain ID for:", name)
     url = "%s/domains?%s" % (APIURL, APICREDS)
 
-    fp = urllib.request.urlopen(url)
+    fp = urlopen(url)
     mybytes = fp.read()
     html = mybytes.decode("utf8")
 
@@ -47,7 +52,7 @@ def get_record(domain, name=RECORD):
     print ("Fetching Record ID for: ", name)
     url = "%s/domains/%s/records?%s" % (APIURL, domain['id'], APICREDS)
 
-    fp = urllib.request.urlopen(url)
+    fp = urlopen(url)
     mybytes = fp.read()
     html = mybytes.decode("utf8")
     result = json.loads(html)
@@ -61,7 +66,7 @@ def set_record_ip(domain, record, ipaddr):
     print ("Updating record", record['name'], ".", domain['name'], "to", ipaddr)
 
     url = "%s/domains/%s/records/%s/edit?%s&data=%s" % (APIURL, domain['id'], record['id'], APICREDS, ipaddr)
-    fp = urllib.request.urlopen(url)
+    fp = urlopen(url)
     mybytes = fp.read()
     html = mybytes.decode("utf8")
     result = json.loads(html)

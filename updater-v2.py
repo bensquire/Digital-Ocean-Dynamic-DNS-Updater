@@ -4,12 +4,19 @@
 # Updated to use Digital Oean API v2
 
 import json, re
-import urllib.request
 from datetime import datetime
 
-TOKEN = ''
-DOMAIN = ''
-RECORD = ''
+# Support both v2 and v3 urllibs
+try:
+    from urllib.request import urlopen
+    from urllib.request import Request
+except ImportError, ex:
+    from urllib2 import urlopen
+    from urllib2 import Request
+
+TOKEN = ''     # Digital Ocean Personal Access Token (read & write)
+DOMAIN = ''    # joebloggs.co.uk
+RECORD = ''    # home
 
 CHECKIP = "http://checkip.dyndns.org:8245/"
 APIURL = "https://api.digitalocean.com/v2"
@@ -19,7 +26,7 @@ def get_external_ip():
     """ Return the current external IP. """
     print ("Fetching external IP from:", CHECKIP)
 
-    fp = urllib.request.urlopen(CHECKIP)
+    fp = urlopen(CHECKIP)
     mybytes = fp.read()
     html = mybytes.decode("utf8")
 
@@ -31,8 +38,8 @@ def get_domain(name=DOMAIN):
     print ("Fetching Domain ID for:", name)
     url = "%s/domains" % (APIURL)
 
-    req = urllib.request.Request(url, headers=AUTH_HEADER)
-    fp = urllib.request.urlopen(req)
+    req = Request(url, headers=AUTH_HEADER)
+    fp = urlopen(req)
     mybytes = fp.read()
     html = mybytes.decode("utf8")
 
@@ -47,8 +54,8 @@ def get_record(domain, name=RECORD):
     print ("Fetching Record ID for: ", name)
     url = "%s/domains/%s/records" % (APIURL, domain['name'])
 
-    req = urllib.request.Request(url, headers=AUTH_HEADER)
-    fp = urllib.request.urlopen(req)
+    req = Request(url, headers=AUTH_HEADER)
+    fp = urlopen(req)
     mybytes = fp.read()
     html = mybytes.decode("utf8")
     result = json.loads(html)
@@ -66,8 +73,8 @@ def set_record_ip(domain, record, ipaddr):
     headers = {'Content-Type': 'application/json'}
     headers.update(AUTH_HEADER)
 
-    req = urllib.request.Request(url, data, headers, method='PUT')
-    fp = urllib.request.urlopen(req)
+    req = Request(url, data, headers, method='PUT')
+    fp = urlopen(req)
     mybytes = fp.read()
     html = mybytes.decode("utf8")
     result = json.loads(html)
