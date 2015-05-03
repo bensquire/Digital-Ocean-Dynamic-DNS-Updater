@@ -7,9 +7,25 @@ import json, re
 import urllib.request
 from datetime import datetime
 
-TOKEN = ''
-DOMAIN = ''
-RECORD = ''
+file_data = []
+
+try:
+    with open("config.txt","r") as f:
+        file_data = f.readlines()
+
+    #normalize the strings for easier processing
+    for i in range(len(file_data)):
+        file_data[i] = file_data[i].replace(" ", "") #remove whitespace
+        file_data[i] = file_data[i].replace('\'', '') #remove the quotes around values
+        file_data[i] = file_data[i].replace("\n", "") #remove the newline character
+
+    TOKEN = file_data[0].split("=")[1]
+    DOMAIN = file_data[1].split("=")[1]
+    RECORD  = file_data[2].split("=")[1]
+
+except:
+    raise SystemExit("No config file found!")
+    #todo - make this write the information to a config file.
 
 CHECKIP = "http://checkip.dyndns.org:8245/"
 APIURL = "https://api.digitalocean.com/v2"
