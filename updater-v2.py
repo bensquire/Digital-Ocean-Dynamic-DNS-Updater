@@ -24,7 +24,11 @@ try:
     RECORD  = file_data[2].split("=")[1]
 
 except:
-    print ("No config file found!")
+    print ("No config file found! Reverting to manual entry...")
+    TOKEN = input("Enter your token - ")
+    DOMAIN = input("Enter your domain - ")
+    RECORD = input("Enter the record to update - ")
+    #todo - make this write the information to a config file
 
 CHECKIP = "http://checkip.dyndns.org:8245/"
 APIURL = "https://api.digitalocean.com/v2"
