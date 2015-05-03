@@ -25,7 +25,7 @@ try:
 
 except:
     raise SystemExit("No config file found!")
-    #todo - make this write the information to a config file
+    #todo - make this write the information to a config file.
 
 CHECKIP = "http://checkip.dyndns.org:8245/"
 APIURL = "https://api.digitalocean.com/v2"
