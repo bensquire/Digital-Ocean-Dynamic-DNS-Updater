@@ -115,15 +115,15 @@ function setRecordIP($record, $ipAddress)
 }
 
 try {
-    if ($argv[1]) {
+    if (!isset($argv[1])) {
         throw new Exception('1st parameter (Access Token) is missing.');
     }
 
-    if ($argv[2]) {
+    if (!isset($argv[2])) {
         throw new Exception('2nd parameter (Domain) is missing.');
     }
 
-    if ($argv[3]) {
+    if (!isset($argv[3])) {
         throw new Exception('3rd parameter (A Record) is missing.');
     }
 
