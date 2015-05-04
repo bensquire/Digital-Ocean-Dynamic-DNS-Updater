@@ -1,4 +1,4 @@
-Digital-Ocean-Dynamic-DNS-Updater
+Digital Ocean Dynamic DNS-Updater
 =================================
 
 Purpose:
@@ -8,12 +8,9 @@ Allows the dynamic updating of an 'A' record that is managed by Digital Oceans D
 
 Liberated From:
 ---------------
-The original script and idea (i.e. the brains behind the whole thing) was lovingly taken from:
+The original script and idea (i.e. the brains behind the whole thing) was lovingly taken from ['pushingkarma.com'](http://pushingkarma.com/notebook/dynamic-dns-your-home-pc-using-digitaloceans-api/).
 
-    http://pushingkarma.com/notebook/dynamic-dns-your-home-pc-using-digitaloceans-api/
-
-However it was written using Python v2, I had installed v3 so adapted the script as best I could. I then decided it would 
-be cool to also convert it into PHP (I know at least 1 other person that would find it useful) so that's what I did, enjoy!
+However it was written using Python v2, I had installed v3 so adapted the script as best I could. I then decided it would be cool to also convert it into PHP (I know at least 1 other person that would find it useful) so that's what I did, enjoy!
 
 
 Usage:
