@@ -28,11 +28,13 @@ I'd create an 'A' record in DO with the hostname 'home', under the domain 'joebl
 retrieve my ['Personal Access Token'](https://cloud.digitalocean.com/settings/applications).
 
 
-PHP Usage:
-----------
+Example Usage:
+--------------
 The php script has been designed to be called as a command line tool. Config is passed into it in the form of CLI parameters, for example:
 
     php updater.php accessToken domain record
+    
+    python updater.py accessToken domain record
     
 were 'accessToken' is your ['Personal Access Token'](https://cloud.digitalocean.com/settings/applications), 'domain' is the domain name you want to update (e.g:
 joebloggs.com) and 'record' is the value of the a-record you want to update (e.g: home).
