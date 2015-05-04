@@ -1,14 +1,4 @@
 <?php
-//Start Configuration
-DEFINE('ACCESS_TOKEN', '');         //Digital Ocean Personal Access Tokens (read & write)
-DEFINE('DOMAIN', '');               //joebloggs.co.uk
-DEFINE('RECORD', '');               //home
-//End Configuration
-
-DEFINE('CURL_TIMEOUT', 15);
-DEFINE('CHECK_IP', "http://checkip.dyndns.org:8245");
-DEFINE('API_URL', "https://api.digitalocean.com/v2/");
-
 /**
  * Return the contents of a page (DO only uses GET requests for its API...)
  *
@@ -37,8 +27,7 @@ function getWebPage($url)
 function getExternalIp()
 {
     $html = getWebPage(CHECK_IP);
-    if (preg_match('/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/', $html, $matches) === 0)
-    {
+    if (preg_match('/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/', $html, $matches) === 0) {
         return false;
     }
 
@@ -48,13 +37,13 @@ function getExternalIp()
 /**
  * Given the domain ID, fetch all Records and return the one we want.
  *
+ * @param null $page
  * @return bool
- * @throws Exception
  */
-function getRecord($page=null)
+function getRecord($page = null)
 {
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, API_URL . 'domains/' . DOMAIN . '/records'.($page != null ? '?page='.$page : ''));
+    curl_setopt($ch, CURLOPT_URL, API_URL . 'domains/' . DOMAIN . '/records' . ($page != null ? '?page=' . $page : ''));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, CURL_TIMEOUT);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -62,32 +51,31 @@ function getRecord($page=null)
     curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . ACCESS_TOKEN));
 
     $data = curl_exec($ch);
+    $info = curl_getinfo($ch);
+
+    $responseCode = $info['http_code'];
     curl_close($ch);
 
-    if ($data === false)
-    {
+    if ($data === false || $responseCode !== 200) {
         return false;
     }
 
     $dataJson = json_decode($data, true);
-    foreach ($dataJson['domain_records'] AS $record)
-    {
-        if ($record['name'] === RECORD)
-        {
+
+    foreach ($dataJson['domain_records'] AS $record) {
+        if ($record['name'] === RECORD) {
             return $record;
         }
     }
-    
+
     // Recursive call for pages results
-    if(isset($dataJson['links']['pages']['next']) && $dataJson['links']['pages']['next'] != '')
-    {
-	    $page = preg_match('/page=(?<page_number>\d+)/i', $dataJson['links']['pages']['next'], $match);
-	    if(isset($match['page_number']) && $match['page_number'] != '')
-	    {
-		    return getRecord($match['page_number']);
-	    }
+    if (isset($dataJson['links']['pages']['next']) && $dataJson['links']['pages']['next'] != '') {
+        preg_match('/page=(?<page_number>\d+)/i', $dataJson['links']['pages']['next'], $match);
+        if (isset($match['page_number']) && $match['page_number'] != '') {
+            return getRecord($match['page_number']);
+        }
     }
-    
+
     return false;
 }
 
@@ -126,36 +114,51 @@ function setRecordIP($record, $ipAddress)
     return ($data !== false);
 }
 
-try
-{
+try {
+    if (!isset($argv[1])) {
+        throw new Exception('1st parameter (Access Token) is missing.');
+    }
+
+    if (!isset($argv[2])) {
+        throw new Exception('2nd parameter (Domain) is missing.');
+    }
+
+    if (!isset($argv[3])) {
+        throw new Exception('3rd parameter (A Record) is missing.');
+    }
+
+    DEFINE('ACCESS_TOKEN', $argv[1]);         //Digital Ocean Personal Access Tokens (read & write)
+    DEFINE('DOMAIN', $argv[2]);               //joebloggs.co.uk
+    DEFINE('RECORD', $argv[3]);               //home
+    DEFINE('CURL_TIMEOUT', 15);
+    DEFINE('CHECK_IP', "http://checkip.dyndns.org:8245");
+    DEFINE('API_URL', "https://api.digitalocean.com/v2/");
+
     echo 'Updating ' . RECORD . '.' . DOMAIN . ': ' . date('Y-m-d H:i:s') . "\r\n";
     echo 'Fetching external IP from: ' . CHECK_IP . "\r\n";
-    if (($ipAddress = getExternalIp()) === false)
-    {
+    if (($ipAddress = getExternalIp()) === false) {
         throw new Exception('Unable to extract external IP address');
     }
 
     echo 'Fetching Record ID for: ' . RECORD . "\r\n";
-    if (($record = getRecord()) === false)
-    {
+    if (($record = getRecord()) === false) {
         throw new Exception('Unable to find requested record in DO account');
     }
 
     echo 'Comparing ' . $record['data'] . ' to ' . $ipAddress . "\r\n";
-    if ($record['data'] === $ipAddress)
-    {
+    if ($record['data'] === $ipAddress) {
         throw new Exception('Record ' . RECORD . '.' . DOMAIN . ' already set to ' . $ipAddress);
     }
 
     echo 'Updating record ' . $record['name'] . '.' . DOMAIN . " to " . $ipAddress . "\r\n";
-    if (setRecordIP($record, $ipAddress) === false)
-    {
+    if (setRecordIP($record, $ipAddress) === false) {
         throw new Exception('Unable to update IP address');
     }
 
     echo 'IP Address successfully updated.' . "\r\n";
-}
-catch (Exception $e)
-{
+} catch (Exception $e) {
     echo 'Error: ' . $e->getMessage() . "\r\n";
+    exit(1);
 }
+
+exit(0);
