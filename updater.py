@@ -40,31 +40,45 @@ def get_domain(name=DOMAIN):
     print ("Fetching Domain ID for:", name)
     url = "%s/domains" % (APIURL)
 
-    req = urllib.request.Request(url, headers=AUTH_HEADER)
-    fp = urllib.request.urlopen(req)
-    mybytes = fp.read()
-    html = mybytes.decode("utf8")
+    while True:
+        req = urllib.request.Request(url, headers=AUTH_HEADER)
+        fp = urllib.request.urlopen(req)
+        mybytes = fp.read()
+        html = mybytes.decode("utf8")
 
-    result = json.loads(html)
+        result = json.loads(html)
 
-    for domain in result['domains']:
-        if domain['name'] == name:
-            return domain
+        for domain in result['domains']:
+            if domain['name'] == name:
+                return domain
+
+        if 'pages' in result['links'] and 'next' in result['links']['pages']:
+            url = result['links']['pages']['next']
+        else:
+            break
+
     raise Exception("Could not find domain: %s" % name)
 
 def get_record(domain, name=RECORD):
     print ("Fetching Record ID for: ", name)
     url = "%s/domains/%s/records" % (APIURL, domain['name'])
 
-    req = urllib.request.Request(url, headers=AUTH_HEADER)
-    fp = urllib.request.urlopen(req)
-    mybytes = fp.read()
-    html = mybytes.decode("utf8")
-    result = json.loads(html)
+    while True:
+        req = urllib.request.Request(url, headers=AUTH_HEADER)
+        fp = urllib.request.urlopen(req)
+        mybytes = fp.read()
+        html = mybytes.decode("utf8")
+        result = json.loads(html)
 
-    for record in result['domain_records']:
-        if record['type'] == 'A' and record['name'] == name:
-            return record
+        for record in result['domain_records']:
+            if record['type'] == 'A' and record['name'] == name:
+                return record
+
+        if 'pages' in result['links'] and 'next' in result['links']['pages']:
+            url = result['links']['pages']['next']
+        else:
+            break
+
     raise Exception("Could not find record: %s" % name)
 
 def set_record_ip(domain, record, ipaddr):
