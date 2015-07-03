@@ -62,7 +62,7 @@ function getRecord($page = null)
 
     $dataJson = json_decode($data, true);
 
-    foreach ($dataJson['domain_records'] AS $record) {
+    foreach ($dataJson['domain_records'] as $record) {
         if ($record['name'] === RECORD) {
             return $record;
         }
@@ -103,11 +103,10 @@ function setRecordIP($record, $ipAddress)
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Authorization: Bearer ' . ACCESS_TOKEN,
-            'Content-Type: application/json',
-            'Content-Length: ' . strlen($data)
-        )
-    );
+        'Authorization: Bearer ' . ACCESS_TOKEN,
+        'Content-Type: application/json',
+        'Content-Length: ' . strlen($data)
+    ));
 
     $data = curl_exec($ch);
     curl_close($ch);
