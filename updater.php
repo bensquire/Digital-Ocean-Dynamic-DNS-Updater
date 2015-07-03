@@ -1,3 +1,4 @@
+#! /usr/bin/env php
 <?php
 /**
  * Return the contents of a page (DO only uses GET requests for its API...)
