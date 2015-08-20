@@ -66,9 +66,6 @@ function getRecord($page = null)
     foreach ($dataJson['domain_records'] as $record) {
         if ( ( $record['name'] === RECORD ) && ( $record['type'] === TYPE ) ) {
             return $record;
-        } else {
-		print_r($record) . "\r\n";
-	}
     }
 
     // Recursive call for pages results
