@@ -29,11 +29,11 @@ The PHP script has been designed to be called as a command line tool, or from a 
 > php updater.php accessToken domain record type [command]
 
 were;
-1. *accessToken* is your ['Personal Access Token'](https://cloud.digitalocean.com/settings/applications)
-2. *domain* is the domain name you want to update (e.g: joebloggs.com).
-3. *record* is the value of the a-record you want to update (e.g: home).
-4. *type* is the type of record A/CNAME/etc
-5. *command* is an optional command which will be called when the IP has been updated. It can be omitted if not required.
+* *accessToken* is your ['Personal Access Token'](https://cloud.digitalocean.com/settings/applications)
+* *domain* is the domain name you want to update (e.g: joebloggs.com).
+* *record* is the value of the a-record you want to update (e.g: home).
+* *type* is the type of record A/CNAME/etc
+* *command* is an optional command which will be called when the IP has been updated. It can be omitted if not required.
 
 Only the fifth parameter is optional, all others are required.
 
