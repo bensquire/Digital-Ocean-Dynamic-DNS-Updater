@@ -3,47 +3,54 @@ Digital Ocean Dynamic DNS-Updater
 
 Purpose:
 --------
-Allows the dynamic updating of an 'A' record that is managed by Digital Oceans DNS server.
+Allows the dynamic updating of DNS records that are managed by Digital Oceans DNS server.
 
 
 Liberated From:
 ---------------
-The original script and idea (i.e. the brains behind the whole thing) was lovingly taken from ['pushingkarma.com'](http://pushingkarma.com/notebook/dynamic-dns-your-home-pc-using-digitaloceans-api/).
+I forked this code from Ben Squires' original project at https://github.com/bensquire/Digital-Ocean-Dynamic-DNS-Updater
 
-However it was written using Python v2, I had installed v3 so adapted the script as best I could. I then decided it would be cool to also convert it into PHP (I know at least 1 other person that would find it useful) so that's what I did, enjoy!
+He, in turn, improved the original code which came from ['pushingkarma.com'](http://pushingkarma.com/notebook/dynamic-dns-your-home-pc-using-digitaloceans-api/).
 
+Use Case:
+------
+Given you have a domain whose DNS is hosted with Digital Ocean and wish to dynamically update a domain record based on your current IP, for example, where you have a dynamically assigned IP address from your internet service provider.
+
+This script can be called from a crontab once every 15 minutes, where it detects a change in your IP it will update the record of your choice to point to your new IP address.
+
+For example, I have siftah.net pointing to my current home IP address.
 
 Usage:
 ------
-Provide your API key, domain you want to update and the 'Record' for that domain and schedule the script to run however
-often you want (using for example the Windows Scheduler or a cron job).
+Get your Personal Access Token from Digital Ocean: ['Personal Access Token'](https://cloud.digitalocean.com/settings/applications).
 
-E.g:
+The PHP script has been designed to be called as a command line tool, or from a crontab. Some config is passed into it in the form of CLI parameters, for example:
 
-My home server has a sticky IP, I want to be able to connect to it remotely using:
-
-    home.joebloggs.com
-
-I'd create an 'A' record in DO with the hostname 'home', under the domain 'joebloggs.co.uk' and while I was there
-retrieve my ['Personal Access Token'](https://cloud.digitalocean.com/settings/applications).
-
-
-Example Usage:
---------------
-The php script has been designed to be called as a command line tool. Config is passed into it in the form of CLI parameters, for example:
-
-    php updater.php accessToken domain record type [command]
-
-    python updater.py accessToken domain record
+> php updater.php accessToken domain record type [command]
 
 were;
- *accessToken* is your ['Personal Access Token'](https://cloud.digitalocean.com/settings/applications)
- *domain* is the domain name you want to update (e.g: joebloggs.com).
- *record* is the value of the a-record you want to update (e.g: home).
- *type* is the type of record A/CNAME/etc
- *command* is an optional command which will be called when the IP has been updated. It can be omitted if not required.
+1. *accessToken* is your ['Personal Access Token'](https://cloud.digitalocean.com/settings/applications)
+2. *domain* is the domain name you want to update (e.g: joebloggs.com).
+3. *record* is the value of the a-record you want to update (e.g: home).
+4. *type* is the type of record A/CNAME/etc
+5. *command* is an optional command which will be called when the IP has been updated. It can be omitted if not required.
+
+Only the fifth parameter is optional, all others are required.
+
+You can also create a cronjob with contents to suit your timing and personal access token:
+> */15 * * * * $HOME/scripts/Digital-Ocean-Dynamic-DNS-Updater/updater.php personal_access_token siftah.net @ A [$HOME/scripts/vpnuk_smartdns_client/vpnuk_smartdns_client.php]
+
+Where personal_access_token is your own access token.
+
+config.php
+------
+I experienced some issues with the IP check page which Bens original script contained, I therefore created my own. If you want to do this you can edit the config.php page to point to your own URL. The regular expression matches any IP address contained in the response, so the format of the page is flexible. You can also use the following PHP snippet;
+
+> <html><head><title>Current IP Check</title></head><body>Current IP Address: <?php
+> echo $_SERVER['REMOTE_ADDR'];
+> ?></body></html>
+
+Then update the following DEFINE to point to it's URL:
+> DEFINE('CHECK_IP', "http://82.196.x.xx/ip.php");
 
 
-Thanks to:
-----------
-@surfer190, @nickwest, @gnoeley, @ryanwcraig for adding additional features, testing code and feedback.
