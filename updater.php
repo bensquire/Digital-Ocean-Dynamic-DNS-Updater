@@ -1,5 +1,17 @@
 #! /usr/bin/env php
 <?php
+require_once('config.php');
+
+/**
+* Debug a little better.
+*/
+define('DEBUG', false);
+function debug_echo($input) {
+    if (DEBUG==true) {
+        echo($input."\r\n");
+    }
+}
+
 /**
  * Return the contents of a page (DO only uses GET requests for its API...)
  *
@@ -64,7 +76,7 @@ function getRecord($page = null)
     $dataJson = json_decode($data, true);
 
     foreach ($dataJson['domain_records'] as $record) {
-        if ($record['name'] === RECORD) {
+        if ( ( $record['name'] === RECORD ) && ( $record['type'] === TYPE ) ) {
             return $record;
         }
     }
@@ -111,6 +123,9 @@ function setRecordIP($record, $ipAddress)
 
     $data = curl_exec($ch);
     curl_close($ch);
+    execOnSuccess();
+    echo 'IP Address successfully updated from: ' . $record['data'] . ' to: ' . $ipAddress . "\r\n";
+
     return ($data !== false);
 }
 
@@ -127,35 +142,47 @@ try {
         throw new Exception('3rd parameter (A Record) is missing.');
     }
 
+    if (!isset($argv[4])) {
+    throw new Exception('4th parameter (Type) is missing.');
+    }
+
+
+    if (!isset($argv[5])) {
+        function execOnSuccess (){
+            //noop
+         }
+    } else {
+        function execOnSuccess (){
+            exec($GLOBALS['argv'][5]);
+        }
+    }
+
     DEFINE('ACCESS_TOKEN', $argv[1]);         //Digital Ocean Personal Access Tokens (read & write)
     DEFINE('DOMAIN', $argv[2]);               //joebloggs.co.uk
     DEFINE('RECORD', $argv[3]);               //home
-    DEFINE('CURL_TIMEOUT', 15);
-    DEFINE('CHECK_IP', "http://checkip.dyndns.org:8245");
-    DEFINE('API_URL', "https://api.digitalocean.com/v2/");
+    DEFINE('TYPE', $argv[4]);             //CNAME
 
-    echo 'Updating ' . RECORD . '.' . DOMAIN . ': ' . date('Y-m-d H:i:s') . "\r\n";
-    echo 'Fetching external IP from: ' . CHECK_IP . "\r\n";
+    debug_echo('Updating ' . RECORD . '.' . DOMAIN . ': ' . date('Y-m-d H:i:s') . "\r\n");
+    debug_echo('Fetching external IP from: ' . CHECK_IP . "\r\n");
     if (($ipAddress = getExternalIp()) === false) {
         throw new Exception('Unable to extract external IP address');
     }
 
-    echo 'Fetching Record ID for: ' . RECORD . "\r\n";
+    debug_echo('Fetching Record ID for: ' . RECORD . "\r\n");
     if (($record = getRecord()) === false) {
         throw new Exception('Unable to find requested record in DO account');
     }
 
-    echo 'Comparing ' . $record['data'] . ' to ' . $ipAddress . "\r\n";
+    debug_echo('Comparing ' . $record['data'] . ' with type ' . TYPE . ' to ' . $ipAddress . "\r\n");
     if ($record['data'] === $ipAddress) {
-        throw new Exception('Record ' . RECORD . '.' . DOMAIN . ' already set to ' . $ipAddress);
-    }
+        debug_echo('Record ' . RECORD . '.' . DOMAIN . ' already set to ' . $ipAddress);
+    } else {
+        debug_echo('Updating record ' . $record['name'] . '.' . DOMAIN . " to " . $ipAddress . "\r\n");
+        if (setRecordIP($record, $ipAddress) === false) {
+            throw new Exception('Unable to update IP address');
+        }
+}
 
-    echo 'Updating record ' . $record['name'] . '.' . DOMAIN . " to " . $ipAddress . "\r\n";
-    if (setRecordIP($record, $ipAddress) === false) {
-        throw new Exception('Unable to update IP address');
-    }
-
-    echo 'IP Address successfully updated.' . "\r\n";
 } catch (Exception $e) {
     echo 'Error: ' . $e->getMessage() . "\r\n";
     exit(1);
