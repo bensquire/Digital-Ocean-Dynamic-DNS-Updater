@@ -14,11 +14,11 @@ He, in turn, improved the original code which came from ['pushingkarma.com'](htt
 
 
 The changes I've made from Bens version;
-1. Add additional parameter so an @ record can be updated.
-2. Add the ability to choose which type of record to update (A/CNAME etc)
-3. Add an optional command to be called upon update of the IP (for example; https://github.com/Siftah/vpnuk_smartdns_client)
-4. Amended the way the error handling works so that it's more coherent when called from a cronjob, it now only creates output if the debug DEFINE is set to TRUE, there's a real error, or it updates the IP address. All other times it will be silent.
-5. Extracted some of the config into a seperate config.php to make pushing updates to GitHub easier without sharing my personal config with the world ;)
+* Add additional parameter so an @ record can be updated.
+* Add the ability to choose which type of record to update (A/CNAME etc)
+* Add an optional command to be called upon update of the IP (for example; https://github.com/Siftah/vpnuk_smartdns_client)
+* Amended the way the error handling works so that it's more coherent when called from a cronjob, it now only creates output if the debug DEFINE is set to TRUE, there's a real error, or it updates the IP address. All other times it will be silent.
+* Extracted some of the config into a seperate config.php to make pushing updates to GitHub easier without sharing my personal config with the world ;)
 
 Use Case:
 ------
