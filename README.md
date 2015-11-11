@@ -46,9 +46,9 @@ config.php
 ------
 I experienced some issues with the IP check page which Bens original script contained, I therefore created my own. If you want to do this you can edit the config.php page to point to your own URL. The regular expression matches any IP address contained in the response, so the format of the page is flexible. You can also use the following PHP snippet;
 
-> <html><head><title>Current IP Check</title></head><body>Current IP Address: <?php
-> echo $_SERVER['REMOTE_ADDR'];
-> ?></body></html>
+`<html><head><title>Current IP Check</title></head><body>Current IP Address: <?php
+echo $_SERVER['REMOTE_ADDR'];
+?></body></html>`
 
 Then update the following DEFINE to point to it's URL:
 > DEFINE('CHECK_IP', "http://82.196.x.xx/ip.php");
