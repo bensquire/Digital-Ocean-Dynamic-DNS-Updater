@@ -15,7 +15,7 @@ However it was written using Python v2, I had installed v3 so adapted the script
 
 Usage:
 ------
-Provide your API key, domain you want to update and the 'Record' for that domain and schedule the script to run however 
+Provide your API key, domain you want to update and the 'Record' for that domain and schedule the script to run however
 often you want (using for example the Windows Scheduler or a cron job).
 
 E.g:
@@ -32,12 +32,16 @@ Example Usage:
 --------------
 The php script has been designed to be called as a command line tool. Config is passed into it in the form of CLI parameters, for example:
 
-    php updater.php accessToken domain record
-    
+    php updater.php accessToken domain record type [command]
+
     python updater.py accessToken domain record
-    
-were 'accessToken' is your ['Personal Access Token'](https://cloud.digitalocean.com/settings/applications), 'domain' is the domain name you want to update (e.g:
-joebloggs.com) and 'record' is the value of the a-record you want to update (e.g: home).
+
+were;
+ *accessToken* is your ['Personal Access Token'](https://cloud.digitalocean.com/settings/applications)
+ *domain* is the domain name you want to update (e.g: joebloggs.com).
+ *record* is the value of the a-record you want to update (e.g: home).
+ *type* is the type of record A/CNAME/etc
+ *command* is an optional command which will be called when the IP has been updated. It can be omitted if not required.
 
 
 Thanks to:
