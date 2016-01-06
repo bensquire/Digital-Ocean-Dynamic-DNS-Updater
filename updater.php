@@ -64,7 +64,7 @@ function getRecord($page = null)
     $dataJson = json_decode($data, true);
 
     foreach ($dataJson['domain_records'] as $record) {
-        if ($record['name'] === RECORD) {
+        if ($record['name'] === RECORD && $record['type'] === 'A') {
             return $record;
         }
     }
