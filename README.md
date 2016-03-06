@@ -3,7 +3,7 @@ Digital Ocean Dynamic DNS-Updater
 
 Purpose:
 --------
-Allows the dynamic updating of an 'A' record that is managed by Digital Oceans DNS server.
+Allows the dynamic updating of an 'A' or 'AAAA' record that is managed by Digital Oceans DNS server.
 
 
 Liberated From:
@@ -15,7 +15,7 @@ However it was written using Python v2, I had installed v3 so adapted the script
 
 Usage:
 ------
-Provide your API key, domain you want to update and the 'Record' for that domain and schedule the script to run however 
+Provide your API key, domain you want to update and the 'Record' for that domain and schedule the script to run however
 often you want (using for example the Windows Scheduler or a cron job).
 
 E.g:
@@ -32,10 +32,10 @@ Example Usage:
 --------------
 The php script has been designed to be called as a command line tool. Config is passed into it in the form of CLI parameters, for example:
 
-    php updater.php accessToken domain record
-    
-    python updater.py accessToken domain record
-    
+    php updater.php accessToken domain record recordtype
+
+    python updater.py accessToken domain record recordtype
+
 were 'accessToken' is your ['Personal Access Token'](https://cloud.digitalocean.com/settings/applications), 'domain' is the domain name you want to update (e.g:
 joebloggs.com) and 'record' is the value of the a-record you want to update (e.g: home).
 
