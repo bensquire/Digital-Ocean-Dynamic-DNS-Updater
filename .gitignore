@@ -1,9 +1,3 @@
 .idea/
 config.txt
 mailconfig.txt
-
-.DS_Store
-
-root@192.168.1.1
-
-updaterTomato.php
