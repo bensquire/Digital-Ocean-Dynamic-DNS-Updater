@@ -30,9 +30,11 @@ function getExternalIp()
     if (RTYPE == 'A'){
         $html = getWebPage(CHECK_IP);
         $ipRegex = IPV4_REGEX;
-    } else {
+    } else if (RTYPE == 'AAAA') {
         $html = getWebPage(CHECK_IPV6);
         $ipRegex = IPV6_REGEX;
+    } else {
+        return false;
     }
     if (preg_match($ipRegex, $html, $matches) === 0) {
         return false;
