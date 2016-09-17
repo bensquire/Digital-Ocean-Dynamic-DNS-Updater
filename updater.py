@@ -112,14 +112,17 @@ def set_record_ip(domain, record, ipaddr):
 
 
 if __name__ == '__main__':
-    try:
-        print ("Updating ", RECORD, ".", DOMAIN, ":", datetime.now())
-        ipaddr = get_external_ip()
-        domain = get_domain()
-        record = get_record(domain)
-        if record['data'] == ipaddr:
-            print ("Record %s.%s already set to %s." % (record['name'], domain['name'], ipaddr))
-        else:
-            set_record_ip(domain, record, ipaddr)
-    except (Exception) as err:
-        print ("Error: ", err)
+    if RTYPE == 'A' or RTYPE == 'AAAA':
+        try:
+            print ("Updating ", RECORD, ".", DOMAIN, ":", datetime.now())
+            ipaddr = get_external_ip()
+            domain = get_domain()
+            record = get_record(domain)
+            if record['data'] == ipaddr:
+                print ("Record %s.%s already set to %s." % (record['name'], domain['name'], ipaddr))
+            else:
+                set_record_ip(domain, record, ipaddr)
+        except (Exception) as err:
+            print ("Error: ", err)
+    else:
+        print("RTYPE should be either A or AAAA")
