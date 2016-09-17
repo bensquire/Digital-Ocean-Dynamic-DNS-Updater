@@ -161,15 +161,14 @@ try {
 
     echo 'Comparing ' . $record['data'] . ' to ' . $ipAddress . "\r\n";
     if ($record['data'] === $ipAddress) {
-        throw new Exception('Record ' . RECORD . '.' . DOMAIN . ' already set to ' . $ipAddress);
+        echo 'IP Address already matches.' . "\r\n";
+    } else {
+        echo 'Updating record ' . $record['name'] . '.' . DOMAIN . " to " . $ipAddress . "\r\n";
+        if (setRecordIP($record, $ipAddress) === false) {
+            throw new Exception('Unable to update IP address');
+        }
+        echo 'IP Address successfully updated.' . "\r\n";
     }
-
-    echo 'Updating record ' . $record['name'] . '.' . DOMAIN . " to " . $ipAddress . "\r\n";
-    if (setRecordIP($record, $ipAddress) === false) {
-        throw new Exception('Unable to update IP address');
-    }
-
-    echo 'IP Address successfully updated.' . "\r\n";
 } catch (Exception $e) {
     echo 'Error: ' . $e->getMessage() . "\r\n";
     exit(1);
