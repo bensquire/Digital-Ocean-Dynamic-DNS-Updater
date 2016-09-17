@@ -36,8 +36,8 @@ The php script has been designed to be called as a command line tool. Config is 
 
     python updater.py accessToken domain record recordtype
 
-were 'accessToken' is your ['Personal Access Token'](https://cloud.digitalocean.com/settings/applications), 'domain' is the domain name you want to update (e.g:
-joebloggs.com) and 'record' is the value of the a-record you want to update (e.g: home).
+where 'accessToken' is your ['Personal Access Token'](https://cloud.digitalocean.com/settings/applications), 'domain' is the domain name you want to update (e.g:
+joebloggs.com), 'record' is the value of the record you want to update (e.g: home), and 'recordtype' is either A or AAAA.
 
 
 Thanks to:
