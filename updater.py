@@ -13,28 +13,40 @@ parser = argparse.ArgumentParser()
 parser.add_argument("token")
 parser.add_argument("domain")
 parser.add_argument("record")
+parser.add_argument("rtype")
 args = parser.parse_args()
 
 #assign the parsed args to their respective variables
 TOKEN = args.token
 DOMAIN = args.domain
 RECORD = args.record
+RTYPE = args.rtype
 
-CHECKIP = "http://checkip.dyndns.org:8245/"
+CHECKIPv4 = "http://checkip.dyndns.org:8245"
+IPv4_REGEX = '(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
+CHECKIPv6 = "http://checkipv6.dyndns.org:8245"
+IPv6_REGEX = '(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))'
 APIURL = "https://api.digitalocean.com/v2"
 AUTH_HEADER = {'Authorization': "Bearer %s" % (TOKEN)}
 
 def get_external_ip():
     """ Return the current external IP. """
-    print ("Fetching external IP from:", CHECKIP)
-
-    fp = urllib.request.urlopen(CHECKIP)
-    mybytes = fp.read()
-    html = mybytes.decode("utf8")
-
-    external_ip = re.findall('[0-9.]+', html)[0]
-    print ("Found external IP: ", external_ip)
-    return external_ip
+    if RTYPE == 'A':
+        fp = urllib.request.urlopen(CHECKIPv4)
+        html = fp.read().decode("utf8")
+        ipregex = re.compile(IPv4_REGEX)
+    elif RTYPE == 'AAAA':
+        fp = urllib.request.urlopen(CHECKIPv6)
+        html = fp.read().decode("utf8")
+        ipregex = re.compile(IPv6_REGEX)
+    else:
+        return false
+    """ Parse the ip addresses """
+    external_ip = ipregex.search(html)
+    if external_ip:
+        return external_ip.group(0)
+    else:
+        raise Exception("Could not fetch IP address")
 
 def get_domain(name=DOMAIN):
     print ("Fetching Domain ID for:", name)
@@ -71,7 +83,7 @@ def get_record(domain, name=RECORD):
         result = json.loads(html)
 
         for record in result['domain_records']:
-            if record['type'] == 'A' and record['name'] == name:
+            if record['type'] == RTYPE and record['name'] == name:
                 return record
 
         if 'pages' in result['links'] and 'next' in result['links']['pages']:
