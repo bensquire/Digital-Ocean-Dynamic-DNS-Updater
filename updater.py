@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # Original Script by Michael Shepanski (2013-08-01, python 2)
 # Updated to work with Python 3
-# Updated to use Digital Oean API v2
+# Updated to use DigitalOcean API v2
 
 import json, re
 import urllib.request
@@ -54,6 +54,9 @@ def get_domain(name=DOMAIN):
 
         if 'pages' in result['links'] and 'next' in result['links']['pages']:
             url = result['links']['pages']['next']
+            # Replace http to https.
+            # DigitalOcean forces https request, but links are returned as http
+            url = url.replace("http://", "https://")
         else:
             break
 
@@ -76,6 +79,9 @@ def get_record(domain, name=RECORD):
 
         if 'pages' in result['links'] and 'next' in result['links']['pages']:
             url = result['links']['pages']['next']
+            # Replace http to https.
+            # DigitalOcean forces https request, but links are returned as http
+            url = url.replace("http://", "https://")
         else:
             break
 
