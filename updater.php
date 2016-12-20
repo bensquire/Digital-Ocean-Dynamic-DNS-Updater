@@ -27,8 +27,16 @@ function getWebPage($url)
  */
 function getExternalIp()
 {
-    $html = getWebPage(CHECK_IP);
-    if (preg_match('/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/', $html, $matches) === 0) {
+    if (RTYPE == 'A'){
+        $html = getWebPage(CHECK_IP);
+        $ipRegex = IPV4_REGEX;
+    } else if (RTYPE == 'AAAA') {
+        $html = getWebPage(CHECK_IPV6);
+        $ipRegex = IPV6_REGEX;
+    } else {
+        return false;
+    }
+    if (preg_match($ipRegex, $html, $matches) === 0) {
         return false;
     }
 
@@ -64,7 +72,7 @@ function getRecord($page = null)
     $dataJson = json_decode($data, true);
 
     foreach ($dataJson['domain_records'] as $record) {
-        if ($record['name'] === RECORD && $record['type'] === 'A') {
+        if ($record['name'] === RECORD && $record['type'] === RTYPE) {
             return $record;
         }
     }
@@ -124,13 +132,21 @@ try {
     }
 
     if (!isset($argv[3])) {
-        throw new Exception('3rd parameter (A Record) is missing.');
+        throw new Exception('3rd parameter (Record) is missing.');
+    }
+
+    if (!isset($argv[4]) || ($argv[4] != 'AAAA' && $argv[4] != 'A')){
+        throw new Exception('4th parameter (Record Type) is missing or incorrect.');
     }
 
     DEFINE('ACCESS_TOKEN', $argv[1]);         //Digital Ocean Personal Access Tokens (read & write)
     DEFINE('DOMAIN', $argv[2]);               //joebloggs.co.uk
     DEFINE('RECORD', $argv[3]);               //home
+    DEFINE('RTYPE', $argv[4]);                //A | AAAA
     DEFINE('CURL_TIMEOUT', 15);
+    DEFINE('IPV4_REGEX', '/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/');
+    DEFINE('IPV6_REGEX', '/(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))/');
+    DEFINE('CHECK_IPV6', "http://checkipv6.dyndns.org:8245");
     DEFINE('CHECK_IP', "http://checkip.dyndns.org:8245");
     DEFINE('API_URL', "https://api.digitalocean.com/v2/");
 
