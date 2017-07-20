@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # Original Script by Michael Shepanski (2013-08-01, python 2)
 # Updated to work with Python 3
 # Updated to use DigitalOcean API v2
