@@ -117,7 +117,8 @@ def process_args():
     parser.add_argument("domain")
     parser.add_argument("record")
     parser.add_argument("rtype", choices=['A', 'AAAA'])
-    parser.add_argument("-q", "--quiet", action="store_true")
+    parser.add_argument("-q", "--quiet", action="store_true", help='Only display output on IP change')
+    parser.add_argument("-ecoc", "--error-code-on-change", action="store_true", help='return Error Code 1 on IP change')
     return parser.parse_args()
 
 
@@ -133,10 +134,15 @@ def run():
         record = get_record(domain, args.record, args.rtype, args.token)
         if record['data'] == ipaddr:
             output("Records {}.{} already set to {}.", record['name'], domain['name'], ipaddr)
-        else:
-            set_record_ip(domain, record, ipaddr, args.token)
+            return 0
+
+        set_record_ip(domain, record, ipaddr, args.token)
+        ec = 1 if args.error_code_on_change else 0
+        return ec
+
     except (Exception) as err:
         print("Error: ", err, file=sys.stderr)
+        return -1
 
 
 if __name__ == '__main__':
