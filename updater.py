@@ -4,8 +4,8 @@
 # Updated to use DigitalOcean API v2
 
 import argparse
+import ipaddress
 import json
-import re
 import sys
 import urllib.request
 from datetime import datetime
@@ -24,32 +24,18 @@ DOMAIN = args.domain
 RECORD = args.record
 RTYPE = args.rtype
 
-CHECKIPv4 = "http://checkip.dyndns.org:8245"
-IPv4_REGEX = '(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
-CHECKIPv6 = "http://checkipv6.dyndns.org:8245"
-IPv6_REGEX = '(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))'
+CHECKIP_URL = "http://ipinfo.io/ip"
 APIURL = "https://api.digitalocean.com/v2"
 AUTH_HEADER = {'Authorization': "Bearer %s" % (TOKEN)}
 
 
 def get_external_ip():
     """ Return the current external IP. """
-    if RTYPE == 'A':
-        fp = urllib.request.urlopen(CHECKIPv4)
-        html = fp.read().decode("utf8")
-        ipregex = re.compile(IPv4_REGEX)
-    elif RTYPE == 'AAAA':
-        fp = urllib.request.urlopen(CHECKIPv6)
-        html = fp.read().decode("utf8")
-        ipregex = re.compile(IPv6_REGEX)
-    else:
-        return False
-    """ Parse the ip addresses """
-    external_ip = ipregex.search(html)
-    if external_ip:
-        return external_ip.group(0)
-    else:
-        raise Exception("Could not fetch IP address")
+    external_ip = urllib.request.urlopen(CHECKIP_URL).read().decode('utf-8').rstrip()
+    ip = ipaddress.ip_address(external_ip)
+    if (ip.version == 4 and RTYPE != 'A') or (ip.version == 6 and RTYPE != 'AAAA'):
+        raise Exception('Expected Rtype {} but got {}'.format(RTYPE, external_ip))
+    return external_ip
 
 
 def get_domain(name=DOMAIN):
