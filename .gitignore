@@ -1,3 +1,6 @@
 .idea/
 config.txt
 mailconfig.txt
+
+*.pyc
+__pycache__/
