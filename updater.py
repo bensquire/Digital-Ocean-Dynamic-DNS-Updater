@@ -29,9 +29,19 @@ APIURL = "https://api.digitalocean.com/v2"
 AUTH_HEADER = {'Authorization': "Bearer %s" % (TOKEN)}
 
 
+def get_url(url, headers=None):
+    if headers:
+        req = urllib.request.Request(url, headers=headers)
+    else:
+        req = urllib.request.Request(url)
+    with urllib.request.urlopen(req) as file:
+        data = file.read()
+        return data.decode('utf8')
+
+
 def get_external_ip():
     """ Return the current external IP. """
-    external_ip = urllib.request.urlopen(CHECKIP_URL).read().decode('utf-8').rstrip()
+    external_ip = get_url(CHECKIP_URL).rstrip()
     ip = ipaddress.ip_address(external_ip)
     if (ip.version == 4 and RTYPE != 'A') or (ip.version == 6 and RTYPE != 'AAAA'):
         raise Exception('Expected Rtype {} but got {}'.format(RTYPE, external_ip))
@@ -43,12 +53,7 @@ def get_domain(name=DOMAIN):
     url = "%s/domains" % (APIURL)
 
     while True:
-        req = urllib.request.Request(url, headers=AUTH_HEADER)
-        fp = urllib.request.urlopen(req)
-        mybytes = fp.read()
-        html = mybytes.decode("utf8")
-
-        result = json.loads(html)
+        result = json.loads(get_url(url, headers=AUTH_HEADER))
 
         for domain in result['domains']:
             if domain['name'] == name:
@@ -70,11 +75,7 @@ def get_record(domain, name=RECORD):
     url = "%s/domains/%s/records" % (APIURL, domain['name'])
 
     while True:
-        req = urllib.request.Request(url, headers=AUTH_HEADER)
-        fp = urllib.request.urlopen(req)
-        mybytes = fp.read()
-        html = mybytes.decode("utf8")
-        result = json.loads(html)
+        result = json.loads(get_url(url, headers=AUTH_HEADER))
 
         for record in result['domain_records']:
             if record['type'] == RTYPE and record['name'] == name:
