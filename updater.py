@@ -6,6 +6,7 @@
 import argparse
 import json
 import re
+import sys
 import urllib.request
 from datetime import datetime
 
@@ -122,7 +123,7 @@ def set_record_ip(domain, record, ipaddr):
         print("Success")
 
 
-if __name__ == '__main__':
+def run():
     if RTYPE == 'A' or RTYPE == 'AAAA':
         try:
             print("Updating ", RECORD, ".", DOMAIN, ":", datetime.now())
@@ -137,3 +138,6 @@ if __name__ == '__main__':
             print("Error: ", err)
     else:
         print("RTYPE should be either A or AAAA")
+
+if __name__ == '__main__':
+    sys.exit(run())
