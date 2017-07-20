@@ -3,12 +3,13 @@
 # Updated to work with Python 3
 # Updated to use DigitalOcean API v2
 
-import json, re
+import argparse
+import json
+import re
 import urllib.request
 from datetime import datetime
-import argparse
 
-#Parse the command line arguments (all required or else exception will be thrown)
+# Parse the command line arguments (all required or else exception will be thrown)
 parser = argparse.ArgumentParser()
 parser.add_argument("token")
 parser.add_argument("domain")
@@ -16,7 +17,7 @@ parser.add_argument("record")
 parser.add_argument("rtype")
 args = parser.parse_args()
 
-#assign the parsed args to their respective variables
+# assign the parsed args to their respective variables
 TOKEN = args.token
 DOMAIN = args.domain
 RECORD = args.record
@@ -29,6 +30,7 @@ IPv6_REGEX = '(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}
 APIURL = "https://api.digitalocean.com/v2"
 AUTH_HEADER = {'Authorization': "Bearer %s" % (TOKEN)}
 
+
 def get_external_ip():
     """ Return the current external IP. """
     if RTYPE == 'A':
@@ -40,7 +42,7 @@ def get_external_ip():
         html = fp.read().decode("utf8")
         ipregex = re.compile(IPv6_REGEX)
     else:
-        return false
+        return False
     """ Parse the ip addresses """
     external_ip = ipregex.search(html)
     if external_ip:
@@ -48,8 +50,9 @@ def get_external_ip():
     else:
         raise Exception("Could not fetch IP address")
 
+
 def get_domain(name=DOMAIN):
-    print ("Fetching Domain ID for:", name)
+    print("Fetching Domain ID for:", name)
     url = "%s/domains" % (APIURL)
 
     while True:
@@ -74,8 +77,9 @@ def get_domain(name=DOMAIN):
 
     raise Exception("Could not find domain: %s" % name)
 
+
 def get_record(domain, name=RECORD):
-    print ("Fetching Record ID for: ", name)
+    print("Fetching Record ID for: ", name)
     url = "%s/domains/%s/records" % (APIURL, domain['name'])
 
     while True:
@@ -99,11 +103,12 @@ def get_record(domain, name=RECORD):
 
     raise Exception("Could not find record: %s" % name)
 
+
 def set_record_ip(domain, record, ipaddr):
-    print ("Updating record", record['name'], ".", domain['name'], "to", ipaddr)
+    print("Updating record", record['name'], ".", domain['name'], "to", ipaddr)
 
     url = "%s/domains/%s/records/%s" % (APIURL, domain['name'], record['id'])
-    data = json.dumps({'data' : ipaddr}).encode('utf-8')
+    data = json.dumps({'data': ipaddr}).encode('utf-8')
     headers = {'Content-Type': 'application/json'}
     headers.update(AUTH_HEADER)
 
@@ -114,21 +119,21 @@ def set_record_ip(domain, record, ipaddr):
     result = json.loads(html)
 
     if result['domain_record']['data'] == ipaddr:
-        print ("Success")
+        print("Success")
 
 
 if __name__ == '__main__':
     if RTYPE == 'A' or RTYPE == 'AAAA':
         try:
-            print ("Updating ", RECORD, ".", DOMAIN, ":", datetime.now())
+            print("Updating ", RECORD, ".", DOMAIN, ":", datetime.now())
             ipaddr = get_external_ip()
             domain = get_domain()
             record = get_record(domain)
             if record['data'] == ipaddr:
-                print ("Record %s.%s already set to %s." % (record['name'], domain['name'], ipaddr))
+                print("Record %s.%s already set to %s." % (record['name'], domain['name'], ipaddr))
             else:
                 set_record_ip(domain, record, ipaddr)
         except (Exception) as err:
-            print ("Error: ", err)
+            print("Error: ", err)
     else:
         print("RTYPE should be either A or AAAA")
