@@ -15,7 +15,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("token")
 parser.add_argument("domain")
 parser.add_argument("record")
-parser.add_argument("rtype")
+parser.add_argument("rtype", choices=['A', 'AAAA'])
 args = parser.parse_args()
 
 # assign the parsed args to their respective variables
@@ -124,20 +124,18 @@ def set_record_ip(domain, record, ipaddr):
 
 
 def run():
-    if RTYPE == 'A' or RTYPE == 'AAAA':
-        try:
-            print("Updating ", RECORD, ".", DOMAIN, ":", datetime.now())
-            ipaddr = get_external_ip()
-            domain = get_domain()
-            record = get_record(domain)
-            if record['data'] == ipaddr:
-                print("Record %s.%s already set to %s." % (record['name'], domain['name'], ipaddr))
-            else:
-                set_record_ip(domain, record, ipaddr)
-        except (Exception) as err:
-            print("Error: ", err)
-    else:
-        print("RTYPE should be either A or AAAA")
+    try:
+        print("Updating ", RECORD, ".", DOMAIN, ":", datetime.now())
+        ipaddr = get_external_ip()
+        domain = get_domain()
+        record = get_record(domain)
+        if record['data'] == ipaddr:
+            print("Record %s.%s already set to %s." % (record['name'], domain['name'], ipaddr))
+        else:
+            set_record_ip(domain, record, ipaddr)
+    except (Exception) as err:
+        print("Error: ", err)
+
 
 if __name__ == '__main__':
     sys.exit(run())
