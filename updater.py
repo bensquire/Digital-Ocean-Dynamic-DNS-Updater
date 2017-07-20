@@ -49,7 +49,7 @@ def get_external_ip(expected_rtype):
 
 
 def get_domain(name, token):
-    print("Fetching Domain ID for:", name)
+    output('Fetching Domain ID for: {}', name)
     url = "%s/domains" % (APIURL)
 
     while True:
@@ -71,7 +71,7 @@ def get_domain(name, token):
 
 
 def get_record(domain, name, rtype, token):
-    print("Fetching Record ID for: ", name)
+    output("Fetching Record ID for: {}", name)
     url = "%s/domains/%s/records" % (APIURL, domain['name'])
 
     while True:
@@ -93,7 +93,7 @@ def get_record(domain, name, rtype, token):
 
 
 def set_record_ip(domain, record, ipaddr, token):
-    print("Updating record", record['name'], ".", domain['name'], "to", ipaddr)
+    print("Updating record {}.{} to {}".format(record['name'], domain['name'], ipaddr))
 
     url = "%s/domains/%s/records/%s" % (APIURL, domain['name'], record['id'])
     data = json.dumps({'data': ipaddr}).encode('utf-8')
@@ -104,28 +104,39 @@ def set_record_ip(domain, record, ipaddr, token):
         print("Success")
 
 
+def output(line, *args):
+    check = getattr(output, 'suppress', False)
+    if check:
+        return
+    print(line.format(*args))
+
+
 def process_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("token")
     parser.add_argument("domain")
     parser.add_argument("record")
     parser.add_argument("rtype", choices=['A', 'AAAA'])
+    parser.add_argument("-q", "--quiet", action="store_true")
     return parser.parse_args()
 
 
 def run():
     try:
         args = process_args()
-        print("Updating ", args.record, ".", args.domain, ":", datetime.now())
+        if args.quiet:
+            output.suppress = True
+
+        output("Update {}.{}: {}", args.record, args.domain, datetime.now())
         ipaddr = get_external_ip(args.rtype)
         domain = get_domain(args.domain, args.token)
         record = get_record(domain, args.record, args.rtype, args.token)
         if record['data'] == ipaddr:
-            print("Record %s.%s already set to %s." % (record['name'], domain['name'], ipaddr))
+            output("Records {}.{} already set to {}.", record['name'], domain['name'], ipaddr)
         else:
             set_record_ip(domain, record, ipaddr, args.token)
     except (Exception) as err:
-        print("Error: ", err)
+        print("Error: ", err, file=sys.stderr)
 
 
 if __name__ == '__main__':
