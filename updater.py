@@ -31,6 +31,14 @@ def get_url(url, headers=None):
         return data.decode('utf8')
 
 
+def put_url(url, data, headers):
+    req = urllib.request.Request(url, data=data, headers=headers)
+    req.get_method = lambda: 'PUT'
+    with urllib.request.urlopen(req) as file:
+        data = file.read()
+        return data.decode('utf8')
+
+
 def get_external_ip(expected_rtype):
     """ Return the current external IP. """
     external_ip = get_url(CHECKIP_URL).rstrip()
@@ -91,12 +99,7 @@ def set_record_ip(domain, record, ipaddr, token):
     data = json.dumps({'data': ipaddr}).encode('utf-8')
     headers = create_headers(token, {'Content-Type': 'application/json'})
 
-    req = urllib.request.Request(url, data, headers, method='PUT')
-    fp = urllib.request.urlopen(req)
-    mybytes = fp.read()
-    html = mybytes.decode("utf8")
-    result = json.loads(html)
-
+    result = json.loads(put_url(url, data, headers))
     if result['domain_record']['data'] == ipaddr:
         print("Success")
 
