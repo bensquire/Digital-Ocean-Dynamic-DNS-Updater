@@ -10,23 +10,15 @@ import sys
 import urllib.request
 from datetime import datetime
 
-# Parse the command line arguments (all required or else exception will be thrown)
-parser = argparse.ArgumentParser()
-parser.add_argument("token")
-parser.add_argument("domain")
-parser.add_argument("record")
-parser.add_argument("rtype", choices=['A', 'AAAA'])
-args = parser.parse_args()
-
-# assign the parsed args to their respective variables
-TOKEN = args.token
-DOMAIN = args.domain
-RECORD = args.record
-RTYPE = args.rtype
-
 CHECKIP_URL = "http://ipinfo.io/ip"
 APIURL = "https://api.digitalocean.com/v2"
-AUTH_HEADER = {'Authorization': "Bearer %s" % (TOKEN)}
+
+
+def create_headers(token, extra_headers=None):
+    rv = {'Authorization': "Bearer %s" % (token)}
+    if extra_headers:
+        rv.update(extra_headers)
+    return rv
 
 
 def get_url(url, headers=None):
@@ -39,21 +31,21 @@ def get_url(url, headers=None):
         return data.decode('utf8')
 
 
-def get_external_ip():
+def get_external_ip(expected_rtype):
     """ Return the current external IP. """
     external_ip = get_url(CHECKIP_URL).rstrip()
     ip = ipaddress.ip_address(external_ip)
-    if (ip.version == 4 and RTYPE != 'A') or (ip.version == 6 and RTYPE != 'AAAA'):
-        raise Exception('Expected Rtype {} but got {}'.format(RTYPE, external_ip))
+    if (ip.version == 4 and expected_rtype != 'A') or (ip.version == 6 and expected_rtype != 'AAAA'):
+        raise Exception('Expected Rtype {} but got {}'.format(expected_rtype, external_ip))
     return external_ip
 
 
-def get_domain(name=DOMAIN):
+def get_domain(name, token):
     print("Fetching Domain ID for:", name)
     url = "%s/domains" % (APIURL)
 
     while True:
-        result = json.loads(get_url(url, headers=AUTH_HEADER))
+        result = json.loads(get_url(url, headers=create_headers(token)))
 
         for domain in result['domains']:
             if domain['name'] == name:
@@ -70,15 +62,15 @@ def get_domain(name=DOMAIN):
     raise Exception("Could not find domain: %s" % name)
 
 
-def get_record(domain, name=RECORD):
+def get_record(domain, name, rtype, token):
     print("Fetching Record ID for: ", name)
     url = "%s/domains/%s/records" % (APIURL, domain['name'])
 
     while True:
-        result = json.loads(get_url(url, headers=AUTH_HEADER))
+        result = json.loads(get_url(url, headers=create_headers(token)))
 
         for record in result['domain_records']:
-            if record['type'] == RTYPE and record['name'] == name:
+            if record['type'] == rtype and record['name'] == name:
                 return record
 
         if 'pages' in result['links'] and 'next' in result['links']['pages']:
@@ -92,13 +84,12 @@ def get_record(domain, name=RECORD):
     raise Exception("Could not find record: %s" % name)
 
 
-def set_record_ip(domain, record, ipaddr):
+def set_record_ip(domain, record, ipaddr, token):
     print("Updating record", record['name'], ".", domain['name'], "to", ipaddr)
 
     url = "%s/domains/%s/records/%s" % (APIURL, domain['name'], record['id'])
     data = json.dumps({'data': ipaddr}).encode('utf-8')
-    headers = {'Content-Type': 'application/json'}
-    headers.update(AUTH_HEADER)
+    headers = create_headers(token, {'Content-Type': 'application/json'})
 
     req = urllib.request.Request(url, data, headers, method='PUT')
     fp = urllib.request.urlopen(req)
@@ -110,16 +101,26 @@ def set_record_ip(domain, record, ipaddr):
         print("Success")
 
 
+def process_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("token")
+    parser.add_argument("domain")
+    parser.add_argument("record")
+    parser.add_argument("rtype", choices=['A', 'AAAA'])
+    return parser.parse_args()
+
+
 def run():
     try:
-        print("Updating ", RECORD, ".", DOMAIN, ":", datetime.now())
-        ipaddr = get_external_ip()
-        domain = get_domain()
-        record = get_record(domain)
+        args = process_args()
+        print("Updating ", args.record, ".", args.domain, ":", datetime.now())
+        ipaddr = get_external_ip(args.rtype)
+        domain = get_domain(args.domain, args.token)
+        record = get_record(domain, args.record, args.rtype, args.token)
         if record['data'] == ipaddr:
             print("Record %s.%s already set to %s." % (record['name'], domain['name'], ipaddr))
         else:
-            set_record_ip(domain, record, ipaddr)
+            set_record_ip(domain, record, ipaddr, args.token)
     except (Exception) as err:
         print("Error: ", err)
 
