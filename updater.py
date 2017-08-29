@@ -7,11 +7,31 @@ import argparse
 import ipaddress
 import json
 import sys
+import time
 import urllib.request
+import urllib.error
 from datetime import datetime
+from functools import wraps
 
 CHECKIP_URL = "http://ipinfo.io/ip"
 APIURL = "https://api.digitalocean.com/v2"
+
+
+def retry(times=-1, delay=0.5, errors=(Exception,)):
+    def decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            count = 0
+            while True:
+                try:
+                    count = count + 1
+                    return f(*args, **kwargs)
+                except errors as e:
+                    if count == times:
+                        raise e
+                    time.sleep(delay)
+        return wrapper
+    return decorator
 
 
 def create_headers(token, extra_headers=None):
@@ -21,6 +41,7 @@ def create_headers(token, extra_headers=None):
     return rv
 
 
+@retry(times=5, delay=1.0, errors=(urllib.error.HTTPError,))
 def get_url(url, headers=None):
     if headers:
         req = urllib.request.Request(url, headers=headers)
@@ -31,6 +52,7 @@ def get_url(url, headers=None):
         return data.decode('utf8')
 
 
+@retry(times=5, delay=1.0, errors=(urllib.error.HTTPError,))
 def put_url(url, data, headers):
     req = urllib.request.Request(url, data=data, headers=headers)
     req.get_method = lambda: 'PUT'
