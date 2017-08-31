@@ -42,4 +42,4 @@ where 'accessToken' is your ['Personal Access Token'](https://cloud.digitalocean
 
 Thanks to:
 ----------
-@surfer190, @nickwest, @gnoeley, @ryanwcraig for adding additional features, testing code and feedback.
+@surfer190, @nickwest, @gnoeley, @ryanwcraig, @c17r for adding additional features, testing code and feedback.
