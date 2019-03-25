@@ -137,8 +137,8 @@ def output(line, *args):
 
 
 def debug(line, *args):
-    debug = getattr(debug, 'debug', False)
-    if not debug:
+    debugEnable = getattr(debug, 'debug', False)
+    if not debugEnable:
         return
     output(f"DEBUG - {line}", *args)
 
