@@ -68,4 +68,4 @@ This mode is perfect if you want to run inside a Docker container, where there i
 
 Thanks to:
 ----------
-@surfer190, @nickwest, @gnoeley, @ryanwcraig, @c17r for adding additional features, testing code and feedback.
+@surfer190, @nickwest, @gnoeley, @ryanwcraig, @c17r, @larroy for adding additional features, testing code and feedback.
