@@ -1,3 +1,8 @@
+I've decided to mark this reposotory as inactive as I simply don't have the skills, time or inclination to maintain the Python script. The PHP is manageable, but that doesn't seem to be what the people want.
+
+For now I'm going to mark this repo as archived; if anyone wants to take it over please get in touch.
+
+
 Digital Ocean Dynamic DNS-Updater
 =================================
 
